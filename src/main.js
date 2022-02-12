@@ -9,7 +9,7 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-export default 'http://127.0.0.1:5000/'
+export default 'http://127.0.0.1:8000/'
 
 /* eslint-disable no-new */
 new Vue({

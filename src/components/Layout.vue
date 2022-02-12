@@ -9,17 +9,24 @@
       <v-toolbar-title
         style="width: 350px"
       >
-        <a href="/" class="white--text" style="text-decoration: none"><v-icon>mdi-car</v-icon>&nbsp;Автозапчасти Лимурика</a>
+        <a href="/" class="white--text" style="text-decoration: none"><v-icon>mdi-car</v-icon>
+          Автозапчасти Лимурика</a>
       </v-toolbar-title>
       <v-text-field
         flat
         solo-inverted
         hide-details
-        prepend-inner-icon="mdi-magnify"
+        class=" ml-md-n12"
         label="Поиск"
-        class="hidden-sm-and-down pl-10 ml-4"
+        @change=""
+        v-model.lazy="search"
       />
-      <v-spacer />
+      <v-btn
+        outlined
+        height="50"
+        :href=" '/shop/0/'+ search"
+      ><v-icon>mdi-magnify</v-icon></v-btn>
+      <v-spacer/>
       <v-btn v-on="on" href="/cart" icon>
         <v-badge
           content="2"
@@ -42,7 +49,9 @@
         </a>
         <v-menu open-on-hover offset-y>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on">
+            <v-btn v-on="on"
+                   @click=""
+                   href="/shop">
               <span>Каталог</span>
             </v-btn>
           </template>
@@ -51,21 +60,20 @@
             max-width="344"
             outlined
           >
-
             <v-list-item
-              v-for="(item, index) in items"
-              :key="index"
+              v-for="(item, id) in items"
+              :key="id"
               @click=""
-              href="/shop"
+              :href=" '/shop/' + item.id"
             >
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title>{{ item.name }}</v-list-item-title>
             </v-list-item>
 
           </v-card>
         </v-menu>
       </v-bottom-navigation>
     </v-content>
-      <router-view/>
+    <router-view/>
     <v-footer
       :padless="true"
     >
@@ -75,11 +83,11 @@
         width="100%"
         class="secondary white--text text-center"
       >
-        <v-card  class="accent" >
+        <v-card class="accent">
           <v-container>
             <v-row no-gutters>
               <v-col class="col-12 col-md-4 col-sm-12">
-                <v-row >
+                <v-row>
                   <v-col class="col-12 col-sm-3 pr-4" align="right">
                     <v-icon class="display-2">mdi-truck-fast</v-icon>
                   </v-col>
@@ -90,11 +98,11 @@
                 </v-row>
               </v-col>
               <v-col class="col-12 col-md-4 col-sm-12">
-                <v-row >
+                <v-row>
                   <v-col class="col-12 col-sm-3 pr-4" align="right">
                     <v-icon class="display-2">mdi-currency-rub</v-icon>
                   </v-col>
-                  <v-col  class="col-12 col-sm-9 pr-4">
+                  <v-col class="col-12 col-sm-9 pr-4">
                     <h3 class="font-weight-light">Оплата при получении</h3>
                     <p class="font-weight-thin">Наличными или картой</p>
                   </v-col>
@@ -105,7 +113,7 @@
                   <v-col class="col-12 col-sm-3 pr-4" align="right">
                     <v-icon class="display-2">mdi-headset</v-icon>
                   </v-col>
-                  <v-col  class="col-12 col-sm-9 pr-4">
+                  <v-col class="col-12 col-sm-9 pr-4">
                     <h3 class="font-weight-light">499-800-456-747</h3>
                     <p class="font-weight-thin">24/7 Поддержка</p>
                   </v-col>
@@ -115,7 +123,7 @@
           </v-container>
         </v-card>
         <v-card-text class="white--text pt-0">
-          Сайт по продаже автозапчастей. Разработал Уголев Никита 2021
+          Сайт по продаже автозапчастей. Разработал Уголев Никита. Студент группы: ЗП11-18 2021
         </v-card-text>
 
         <v-divider></v-divider>
@@ -128,17 +136,29 @@
   </v-app>
 </template>
 <script>
-    export default {
-        data () {
-            return {
-                items: [
-                    { title: 'Амортизаторы' },
-                    { title: 'Кузновные детали' },
-                    { title: 'Масла' },
-                    { title: 'Тормозная система' },
-                ],
-                activeBtn: 1,
-            }
-        },
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      items: [],
+      activeBtn: 1,
+      search: []
     }
+  },
+  methods: {
+    getRootCategories: function () {
+      axios.get('http://127.0.0.1:8000/api/category/?root=true'
+      ).then(response => {
+        this.items = response.data
+      })
+        .catch(e => {
+          this.errors.push(e)
+        })
+    },
+  },
+  mounted() {
+    this.getRootCategories()
+  }
+}
 </script>

@@ -9,27 +9,28 @@
             <v-card-title>Фильтры</v-card-title>
             <v-divider></v-divider>
             <template>
-              <v-treeview :items="items" :open="[1]" :active="[5]" :selected-color="'#fff'" activatable open-on-click
-                          dense></v-treeview>
+              <v-select
+                class="pa-3"
+                v-model="select"
+                :items="options"
+                style="margin-bottom: -30px;"
+                outlined
+                dense
+                @change="getProducts($event)">
+              </v-select>
             </template>
             <v-divider></v-divider>
-            <v-card-title>{{ info }}</v-card-title>
-            <v-range-slider
-              v-model="range"
-              :max="max"
-              :min="min"
-              :height="10"
-              class="align-center"
-              dense
-            ></v-range-slider>
-            <v-row class="pa-2" dense>
+            <v-divider></v-divider>
+            <v-row class="pa-2" style="margin-bottom: -25px;" dense>
+
               <v-col cols="12" sm="5">
                 <v-text-field
-                  :value="range[0]"
-                  label="мин."
+                  :value="min_price"
+                  label="Мин."
                   outlined
                   dense
-                  @change="$set(range, 0, $event)"
+                  v-model.number="minPrice"
+                  @change="getProducts($event)"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="2">
@@ -37,84 +38,91 @@
               </v-col>
               <v-col cols="12" sm="5">
                 <v-text-field
-                  :value="range[1]"
-                  label="макс."
+                  :value="max_price"
+                  label="Макс."
                   outlined
                   dense
-                  @change="$set(range, 1, $event)"
+                  v-model.number="maxPrice"
+                  @change="getProducts($event)"
                 ></v-text-field>
               </v-col>
             </v-row>
             <v-divider></v-divider>
             <v-divider></v-divider>
-            <v-card-title class="pb-0">Вязкость по SAE</v-card-title>
-            <v-container class="pt-0" fluid>
-              <v-checkbox label="0W-15" hide-details dense></v-checkbox>
-              <v-checkbox label="0W-20" hide-details dense></v-checkbox>
-              <v-checkbox label="0W-30" hide-details dense></v-checkbox>
-              <v-checkbox label="5W-30" hide-details dense></v-checkbox>
-              <v-checkbox label="5W-40" hide-details dense></v-checkbox>
-              <v-checkbox label="10W-40" hide-details dense></v-checkbox>
-            </v-container>
-
+            <v-card-title class="pb-0">filter_name +{{ this.$route.params.category_id }} + {{ this.$route.params.search }}</v-card-title>
+            <v-treeview
+              :items="items"
+              :load-children="fetchCategories"
+              :open.sync="openIds"
+              activatable
+              color="warning"
+              open-on-click
+              transition>
+              <template slot="label" slot-scope="{ item }">
+                <a @click="setCategory(item.id)">{{ item.name }}</a>
+              </template>
+            </v-treeview>
           </v-card>
         </div>
-        <div
-          class="col-md-9 col-sm-9 col-xs-12"
-        >
-
-          <v-breadcrumbs class="pb-0" :items="Autoparts"></v-breadcrumbs>
-
+        <div class="col-md-9 col-sm-9 col-xs-12">
           <v-row dense>
             <v-col cols="12" sm="8" class="pl-6 pt-6">
-              <small>Отображено 1-12 из 50 товаров</small>
+              <div>
+                <small>Отображено {{ cur_prod_f }} - {{ cur_prod_t }} из {{ products.length }}
+                  товаров</small>
+              </div>
             </v-col>
             <v-col cols="12" sm="4">
-              <v-select class="pa-0" v-model="select" :items="options" style="margin-bottom: -20px;" outlined
-                        dense></v-select>
+
             </v-col>
           </v-row>
 
           <v-divider></v-divider>
 
           <div class="row text-center">
-            <div class="col-md-3 col-sm-6 col-xs-12" v-for="product in products" :key="id">
-              <v-hover v-slot:default="{ hover }">
-                <v-card
-                  class="mx-auto"
-                  color="grey lighten-4"
-                  max-width="600"
-                >
-                  <v-img
-                    class="white--text align-end"
-                    :aspect-ratio="16/9"
-                    height="300px"
-                    :src= "'http://localhost:5000/img/' + product.image_path"
-                  >
-                    <v-card-title>{{ product.price }}₽</v-card-title>
-                    <v-expand-transition>
-                      <div
-                        v-if="hover"
-                        class="d-flex transition-fast-in-fast-out white darken-2 v-card--reveal display-3 white--text"
-                        style="height: 100%;"
+            <div class="col-md-3 col-sm-6 col-xs-12"
+                 v-for="(product,id) in products">
+              <div v-if="id >= 12*page-12">
+                <div v-if="id < 12*page">
+                  <v-hover v-slot:default="{ hover }">
+                    <v-card
+                      class="mx-auto"
+                      color="grey lighten-4"
+                      max-width="600"
+                    >
+                      <v-img
+                        class="white--text align-end"
+                        :aspect-ratio="16/9"
+                        height="300px"
+                        :src="'http://localhost:8000/static/' + product.image_path"
                       >
-                        <v-btn v-if="hover" href="/product"  class="" outlined>Подробнее + {{product.id}}</v-btn>
-                      </div>
+                        <v-card-title>{{ product.price }}₽</v-card-title>
+                        <v-expand-transition>
+                          <div
+                            v-if="hover"
+                            class="d-flex transition-fast-in-fast-out white darken-2 v-card--reveal display-3 white--text"
+                            style="height: 100%;"
+                          >
+                            <v-btn v-if="hover" :href=" '/product/' + product.id +'/' + product.category_id" class="" outlined>Подробнее</v-btn>
+                          </div>
+                        </v-expand-transition>
+                      </v-img>
+                      <v-card-text class="text--primary">
+                        <div><a :href=" '/product/' + product.id +'/'+ product.category_id" style="text-decoration: none">{{ product.name }}</a>
+                        </div>
+                        <div>{{ product.price }}₽</div>
+                      </v-card-text>
+                    </v-card>
+                  </v-hover>
+                </div>
+              </div>
 
-                    </v-expand-transition>
-                  </v-img>
-                  <v-card-text class="text--primary">
-                    <div><a href="/product" style="text-decoration: none">{{ product.name }}</a></div>
-                    <div >{{ product.price }}₽</div>
-                  </v-card-text>
-                </v-card>
-              </v-hover>
             </div>
           </div>
-          <div class="text-center mt-12">
+          <div class="text-center mt-10">
             <v-pagination
               v-model="page"
-              :length="6"
+              :length="pages"
             ></v-pagination>
           </div>
         </div>
@@ -139,20 +147,24 @@ import axios from 'axios';
 
 export default {
   data: () => ({
-    range: [0, 10000],
-    select: 'Популярные',
+    select: 'По умолчанию',
     options: [
       'По умолчанию',
-      'Популярные',
       'Цена: по убыванию',
-      'Цена: по возростанию',
+      'Цена: по возрастанию',
     ],
+    category: null,
+    ordering: {
+      "По умолчанию": "-id",
+      "Цена: по убыванию": "-price",
+      "Цена: по возрастанию": "price"
+    },
     page: 1,
     Autoparts: [
       {
-        text: 'Главная',
+        text: 'Каталог',
         disabled: false,
-        href: 'Home',
+        href: 'shop',
       },
       {
         text: 'Масла',
@@ -167,131 +179,133 @@ export default {
     ],
     min: 0,
     max: 10000,
-    items: [
+    items: [],/*[
       {
         id: 1,
         name: 'Амортизаторы',
         children: [
-          {id: 1, name: 'Гидравлические'},
-          {id: 2, name: 'Газовые'},
-          {id: 3, name: 'Комбинированные'},
+          {id: 5, name: 'Гидравлические'},
+          {id: 6, name: 'Газовые'},
+          {id: 7, name: 'Комбинированные'},
         ],
       },
       {
         id: 2,
-        name: 'Кузновные детали',
+        name: 'Газовые',
         children: [
-          {id: 1, name: 'Бамперы'},
-          {id: 2, name: 'Крылья'},
-          {id: 3, name: 'Двери'},
-        ],
-      },
-      {
-        id: 3,
-        name: 'Масла',
-        children: [
-          {id: 1, name: 'Моторные'},
-          {id: 2, name: 'Трансмисионные'},
-          {id: 3, name: 'Для мототехники'},
-        ],
-      },
-      {
-        id: 4,
-        name: 'Тормозная система',
-        children: [
-          {id: 1, name: 'Барабаны тормозные'},
-          {id: 2, name: 'Диски тормозные'},
-          {id: 3, name: 'Колодки тормозные'},
+          {id: 8, name: 'Бамперы'},
+          {id: 9, name: 'Крылья'},
+          {id: 10, name: 'Двери'},
         ],
       }
-    ],
+    ],*/
     products: [],
-    /* products:[
-      {
-          id:1,
-          name:'MOTUL 8100 ECO-nergy',
-          price:'4500.00',
-          src:require('../assets/img/shop/1.jpg')
-      },
-      {
-          id:2,
-          name:'Zepro',
-          price:'4000.00',
-          src:require('../assets/img/shop/2.jpg')
-      },
-      {
-          id:3,
-          name:'Lukoil Genesis',
-          price:'3500.00',
-          src:require('../assets/img/shop/4.jpg')
-      },
-      {
-          id:4,
-          name:'Supreme',
-          price:'3000.00',
-          src:require('../assets/img/shop/5.jpg')
-      },
-      {
-          id:5,
-          name:'Nissan Motor oil',
-          price:'5000.00',
-          src:require('../assets/img/shop/6.jpg')
-      },
-      {
-          id:6,
-          name:'Shell HX8',
-          price:'3400.00',
-          src:require('../assets/img/shop/7.jpg')
-      },
-      {
-          id:7,
-          name:'ZAC',
-          price:'3800.00',
-          src:require('../assets/img/shop/8.jpg')
-      },
-      {
-          id:8,
-          name:'Shell HX7',
-          price:'2950.00',
-          src:require('../assets/img/shop/9.jpg')
-      },{
-          id:9,
-          name:'GM Motor oil',
-          price:'5000.00',
-          src:require('../assets/img/shop/10.jpg')
-      },
-      {
-          id:10,
-          name:'Total Quarz INEO',
-          price:'3400.00',
-          src:require('../assets/img/shop/11.jpg')
-      },
-      {
-          id:11,
-          name:'HYUNDAI XTeer',
-          price:'3800.00',
-          src:require('../assets/img/shop/12.jpg')
-      },
-      {
-          id:12,
-          name:'Idemitsu',
-          price:'2690.00',
-          src:require('../assets/img/shop/3.jpg')
-      }
-  ] */
+    products_desc: [],
+    max_price: 100000,
+    min_price: 0,
+    minPrice: [],
+    maxPrice: [],
+    categorys: [],
+    filters: [],
+    filter_values: [],
+    root: true,
+    price_max: 0,
+    pages: 1,
+    cur_prod_f: [],
+    openIds: [],
+    search:[]
   }),
 
-  mounted() {
-    axios.get(hostname + `api/product`)
-      .then(response => {
+  methods: {
+    getMin_max: function (){
+      axios.get('http://127.0.0.1:8000/' + `api/product/max-min-price`)
+        .then(response => {
+          // JSON responses are automatically parsed.
+          this.min_price = response.data.min_price
+          this.max_price = response.data.max_price
+          this.minPrice = response.data.min_price
+          this.maxPrice = response.data.max_price
+          console.log("min_2" + this.minPrice)
+          console.log("max_2" + this.maxPrice)
+        })
+        .catch(e => {
+          this.errors.push(e)
+        })
+    },
+    setCategory: function (id) {
+      this.category = id
+      this.getProducts()
+    },
+    async fetchCategories(item) {
+      return fetch('http://127.0.0.1:8000/api/category/' + item.id + '/children/')
+        .then(res => res.json())
+        .then(json => (item.children.push(...json)))
+        .catch(err => console.warn(err))
+    },
+    getRootCategories: function () {
+      axios.get('http://127.0.0.1:8000/api/category/?root=true'
+      ).then(response => {
+        this.items = response.data
+      })
+        .catch(e => {
+          this.errors.push(e)
+        })
+    },
+    onOpen: function (items) {
+      this.openIds = items
+    },
+    getProducts: function () {
+      var url = 'http://127.0.0.1:8000/' +
+        'api/product/?price_gte=' + this.minPrice +
+        '&price_lte=' + this.maxPrice +
+        '&ordering=' + this.ordering[this.select]
+      if (this._search) {
+        url += '&search=' + this._search
+      }
+      if (this.$route.params.category_id > 0) {
+        url += '&category=' + this.$route.params.category_id
+      } else if (this.category) {
+        url += '&category=' + this.category
+      }
+      if (this.$route.params.search) {
+        url += '&search=' + this.$route.params.search
+      }
+      axios.get(url).then(response => {
         // JSON responses are automatically parsed.
-        this.products = response.data
+        this.products = response.data // получение списка продуктов
+        this.filters = response.filter
+        this.filters_values = response.filter_values
+        this.pages = Math.floor(this.products.length / 12) + 1 * (this.products.length % 12 > 0)
+        this.page = 1
+        this.cur_prod_f = (12 * this.page - 12) + 1
+        if (this.products.length >= 12) {
+          this.cur_prod_t = (12 * this.page)
+        } else {
+          this.cur_prod_t = this.products.length
+        }
+        console.log(this.products)
+        console.log("filters" + this.filters)
+        console.log("filters_value" + this.filters_values)
+        console.log("pages  " + this.pages)
+        console.log("select  " + this.select)
       })
-      .catch(e => {
-        this.errors.push(e)
-      })
-  }
+        .catch(e => {
+          this.errors.push(e)
+        })
+    }
+  },
 
+
+  mounted() {
+    //this.products = this.products()
+    this.getProducts()
+    this.getRootCategories()
+    this.getMin_max()
+  },
+
+  created() {
+    this.getMin_max()
+  }
 }
 </script>
 

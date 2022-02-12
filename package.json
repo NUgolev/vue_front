@@ -2,7 +2,7 @@
   "name": "Autoparts",
   "description": "E-Commerce website",
   "author": "Ugolev Nikita",
-  "private": false,
+  "private": "false",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "set NODE_ENV=dev && npm run dev",

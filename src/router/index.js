@@ -22,12 +22,22 @@ export default new Router({
           name:'Home'
         },
         {
+          path:'/shop/:category_id/:search',
+          component:Shop,
+          name:'Shop'
+        },
+        {
+          path:'/shop/:category_id/',
+          component:Shop,
+          name:'Shop'
+        },
+        {
           path:'/shop',
           component:Shop,
           name:'Shop'
         },
         {
-          path:'/product',
+          path:'/product/:id/:category_id',
           component:Product,
           name:'Product'
         },
@@ -51,6 +61,5 @@ export default new Router({
     }
   ],
     mode:'history'
-},
-
+}
   )
