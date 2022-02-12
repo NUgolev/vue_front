@@ -97,24 +97,20 @@ export default {
     same_prod_count: 6
   }),
   mounted() {
-
-    axios.get('http://127.0.0.1:8000/api/product/?category=' + this.$route.params.category_id)
-      .then(response => {
-        // JSON responses are automatically parsed.
-        this.same_products = response.data
-        console.log(this.same_products)
-      })
-      .catch(e => {
-        this.errors.push(e)
-      })
   },
   created() {
     axios.get('http://127.0.0.1:8000/api/product/' + this.$route.params.id)
       .then(response => {
         // JSON responses are automatically parsed.
         this.product = response.data
-        console.log(this.product)
-        console.log(this.product.category_id)
+        axios.get('http://127.0.0.1:8000/api/product/?category=' + this.product.category_id)
+          .then(response => {
+            // JSON responses are automatically parsed.
+            this.same_products = response.data
+          })
+          .catch(e => {
+            this.errors.push(e)
+          })
       })
       .catch(e => {
         this.errors.push(e)

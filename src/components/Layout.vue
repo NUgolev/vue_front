@@ -16,16 +16,13 @@
         flat
         solo-inverted
         hide-details
-        class=" ml-md-n12"
+        class="hidden-sm-and-down pl-10 ml-4"
         label="Поиск"
         @change=""
         v-model.lazy="search"
+        v-on:keyup.enter="onEnter"
+        prepend-inner-icon="mdi-magnify"
       />
-      <v-btn
-        outlined
-        height="50"
-        :href=" '/shop/0/'+ search"
-      ><v-icon>mdi-magnify</v-icon></v-btn>
       <v-spacer/>
       <v-btn v-on="on" href="/cart" icon>
         <v-badge
@@ -64,7 +61,7 @@
               v-for="(item, id) in items"
               :key="id"
               @click=""
-              :href=" '/shop/' + item.id"
+              :href=" '/shop/?category=' + item.id"
             >
               <v-list-item-title>{{ item.name }}</v-list-item-title>
             </v-list-item>
@@ -137,6 +134,8 @@
 </template>
 <script>
 import axios from "axios";
+import { createRouter } from "../router";
+const router = createRouter();
 
 export default {
   data() {
@@ -156,6 +155,10 @@ export default {
           this.errors.push(e)
         })
     },
+    onEnter: function() {
+      router.push("/shop?search=" + this.search)
+      router.go()
+    }
   },
   mounted() {
     this.getRootCategories()

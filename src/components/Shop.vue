@@ -49,7 +49,7 @@
             </v-row>
             <v-divider></v-divider>
             <v-divider></v-divider>
-            <v-card-title class="pb-0">filter_name +{{ this.$route.params.category_id }} + {{ this.$route.params.search }}</v-card-title>
+            <v-card-title class="pb-0">filter_name +{{ this.$route.query.category }} + {{ this.$route.query.search }}</v-card-title>
             <v-treeview
               :items="items"
               :load-children="fetchCategories"
@@ -103,7 +103,7 @@
                             class="d-flex transition-fast-in-fast-out white darken-2 v-card--reveal display-3 white--text"
                             style="height: 100%;"
                           >
-                            <v-btn v-if="hover" :href=" '/product/' + product.id +'/' + product.category_id" class="" outlined>Подробнее</v-btn>
+                            <v-btn v-if="hover" :href=" '/product/' + product.id" class="" outlined>Подробнее</v-btn>
                           </div>
                         </v-expand-transition>
                       </v-img>
@@ -142,7 +142,6 @@
 </style>
 <script>
 import "./../config";
-import hostname from "./../main"
 import axios from 'axios';
 
 export default {
@@ -213,7 +212,8 @@ export default {
     pages: 1,
     cur_prod_f: [],
     openIds: [],
-    search:[]
+    search:[],
+    cur_prod_t: 0
   }),
 
   methods: {
@@ -225,8 +225,6 @@ export default {
           this.max_price = response.data.max_price
           this.minPrice = response.data.min_price
           this.maxPrice = response.data.max_price
-          console.log("min_2" + this.minPrice)
-          console.log("max_2" + this.maxPrice)
         })
         .catch(e => {
           this.errors.push(e)
@@ -259,16 +257,13 @@ export default {
         'api/product/?price_gte=' + this.minPrice +
         '&price_lte=' + this.maxPrice +
         '&ordering=' + this.ordering[this.select]
-      if (this._search) {
-        url += '&search=' + this._search
-      }
-      if (this.$route.params.category_id > 0) {
-        url += '&category=' + this.$route.params.category_id
+      if (this.$route.query.category) {
+        url += '&category=' + this.$route.query.category
       } else if (this.category) {
         url += '&category=' + this.category
       }
-      if (this.$route.params.search) {
-        url += '&search=' + this.$route.params.search
+      if (this.$route.query.search) {
+        url += '&search=' + this.$route.query.search
       }
       axios.get(url).then(response => {
         // JSON responses are automatically parsed.
@@ -283,11 +278,6 @@ export default {
         } else {
           this.cur_prod_t = this.products.length
         }
-        console.log(this.products)
-        console.log("filters" + this.filters)
-        console.log("filters_value" + this.filters_values)
-        console.log("pages  " + this.pages)
-        console.log("select  " + this.select)
       })
         .catch(e => {
           this.errors.push(e)
