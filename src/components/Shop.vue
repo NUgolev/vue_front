@@ -49,9 +49,7 @@
             </v-row>
             <v-divider></v-divider>
             <v-divider></v-divider>
-            <v-card-title class="pb-0">Категории +{{ this.$route.query.category }} + {{
-                this.$route.query.search
-              }}
+            <v-card-title class="pb-0">Категории
             </v-card-title>
             <v-treeview
               :items="items"
@@ -70,6 +68,24 @@
                 {{ item.name }}
               </div>
             </v-treeview>
+            <v-divider/>
+            <div v-for="(filter,id) in filters">
+              <v-card-title class="pb-0">{{ filter.name }}
+              </v-card-title>
+              <v-container>
+                <v-select
+                  :items="filter.value"
+                  chips
+                  :label="filter.value.name"
+                  multiple
+                  outlined
+                  style="margin-bottom: -30px;"
+                  dense
+                  v-model.lazy="f_checked[id]"
+                ></v-select>
+              </v-container>
+              <v-divider/>
+            </div>
           </v-card>
         </div>
 
@@ -187,7 +203,15 @@ export default {
     openIds: [],
     search: [],
     cur_prod_t: 0,
-    category: null
+    category: null,
+    filters: [{
+      "id": "0", "name": "Вязкость по SAE",
+      "value": [ "0w30", "5w40", "10w30", "0w40"]},
+      {
+      "id": "1", "name": "Вязкость по SASAE",
+      "value": ["1", "2", "3", "4"]
+    }],
+    f_checked:[]
   }),
 
   methods: {
@@ -237,7 +261,6 @@ export default {
       axios.get(url).then(response => {
         // JSON responses are automatically parsed.
         this.products = response.data // получение списка продуктов
-        console.log(this.filter_values)
         this.pages = Math.floor(this.products.length / 12) + 1 * (this.products.length % 12 > 0)
         this.page = 1
         this.cur_prod_f = (12 * this.page - 12) + 1

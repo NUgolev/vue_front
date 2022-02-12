@@ -71,6 +71,7 @@
                         class="ma-2"
                         outlined
                         color="info"
+                        :href=" '/product/' + same_product.id"
                       >
                         Подробнее
                       </v-btn>
