@@ -49,7 +49,10 @@
             </v-row>
             <v-divider></v-divider>
             <v-divider></v-divider>
-            <v-card-title class="pb-0">filter_name +{{ this.$route.query.category }} + {{ this.$route.query.search }}</v-card-title>
+            <v-card-title class="pb-0">Категории +{{ this.$route.query.category }} + {{
+                this.$route.query.search
+              }}
+            </v-card-title>
             <v-treeview
               :items="items"
               :load-children="fetchCategories"
@@ -57,13 +60,19 @@
               activatable
               color="warning"
               open-on-click
-              transition>
-              <template slot="label" slot-scope="{ item }">
-                <a @click="setCategory(item.id)">{{ item.name }}</a>
-              </template>
+              transition
+            >
+              <div
+                slot="label"
+                slot-scope="{ item }"
+                @click="setCategory(item.id)"
+              >
+                {{ item.name }}
+              </div>
             </v-treeview>
           </v-card>
         </div>
+
         <div class="col-md-9 col-sm-9 col-xs-12">
           <v-row dense>
             <v-col cols="12" sm="8" class="pl-6 pt-6">
@@ -108,7 +117,8 @@
                         </v-expand-transition>
                       </v-img>
                       <v-card-text class="text--primary">
-                        <div><a :href=" '/product/' + product.id +'/'+ product.category_id" style="text-decoration: none">{{ product.name }}</a>
+                        <div><a :href=" '/product/' + product.id +'/'+ product.category_id"
+                                style="text-decoration: none">{{ product.name }}</a>
                         </div>
                         <div>{{ product.price }}₽</div>
                       </v-card-text>
@@ -143,6 +153,9 @@
 <script>
 import "./../config";
 import axios from 'axios';
+import {createRouter} from "../router";
+
+const router = createRouter();
 
 export default {
   data: () => ({
@@ -152,72 +165,33 @@ export default {
       'Цена: по убыванию',
       'Цена: по возрастанию',
     ],
-    category: null,
     ordering: {
       "По умолчанию": "-id",
       "Цена: по убыванию": "-price",
       "Цена: по возрастанию": "price"
     },
     page: 1,
-    Autoparts: [
-      {
-        text: 'Каталог',
-        disabled: false,
-        href: 'shop',
-      },
-      {
-        text: 'Масла',
-        disabled: false,
-        href: 'Oil',
-      },
-      {
-        text: 'Моторные',
-        disabled: true,
-        href: 'Motor_oil',
-      },
-    ],
     min: 0,
     max: 10000,
-    items: [],/*[
-      {
-        id: 1,
-        name: 'Амортизаторы',
-        children: [
-          {id: 5, name: 'Гидравлические'},
-          {id: 6, name: 'Газовые'},
-          {id: 7, name: 'Комбинированные'},
-        ],
-      },
-      {
-        id: 2,
-        name: 'Газовые',
-        children: [
-          {id: 8, name: 'Бамперы'},
-          {id: 9, name: 'Крылья'},
-          {id: 10, name: 'Двери'},
-        ],
-      }
-    ],*/
+    items: [],
     products: [],
     products_desc: [],
     max_price: 100000,
     min_price: 0,
     minPrice: [],
     maxPrice: [],
-    categorys: [],
-    filters: [],
-    filter_values: [],
     root: true,
     price_max: 0,
     pages: 1,
     cur_prod_f: [],
     openIds: [],
-    search:[],
-    cur_prod_t: 0
+    search: [],
+    cur_prod_t: 0,
+    category: null
   }),
 
   methods: {
-    getMin_max: function (){
+    getMin_max: function () {
       axios.get('http://127.0.0.1:8000/' + `api/product/max-min-price`)
         .then(response => {
           // JSON responses are automatically parsed.
@@ -233,12 +207,6 @@ export default {
     setCategory: function (id) {
       this.category = id
       this.getProducts()
-    },
-    async fetchCategories(item) {
-      return fetch('http://127.0.0.1:8000/api/category/' + item.id + '/children/')
-        .then(res => res.json())
-        .then(json => (item.children.push(...json)))
-        .catch(err => console.warn(err))
     },
     getRootCategories: function () {
       axios.get('http://127.0.0.1:8000/api/category/?root=true'
@@ -257,10 +225,11 @@ export default {
         'api/product/?price_gte=' + this.minPrice +
         '&price_lte=' + this.maxPrice +
         '&ordering=' + this.ordering[this.select]
-      if (this.$route.query.category) {
-        url += '&category=' + this.$route.query.category
-      } else if (this.category) {
+      if (this.category) {
         url += '&category=' + this.category
+        router.push({path: 'shop', query: {category: this.category}})
+      } else if (this.$route.query.category) {
+        url += '&category=' + this.$route.query.category
       }
       if (this.$route.query.search) {
         url += '&search=' + this.$route.query.search
@@ -268,8 +237,7 @@ export default {
       axios.get(url).then(response => {
         // JSON responses are automatically parsed.
         this.products = response.data // получение списка продуктов
-        this.filters = response.filter
-        this.filters_values = response.filter_values
+        console.log(this.filter_values)
         this.pages = Math.floor(this.products.length / 12) + 1 * (this.products.length % 12 > 0)
         this.page = 1
         this.cur_prod_f = (12 * this.page - 12) + 1
@@ -282,9 +250,15 @@ export default {
         .catch(e => {
           this.errors.push(e)
         })
-    }
+    },
+    async fetchCategories(item) {
+      return fetch('http://127.0.0.1:8000/api/category/' + item.id + '/children/')
+        .then(res => res.json())
+        .then(json => (item.children.push(...json)))
+        .then(this.setCategory(item.id))
+        .catch(err => console.warn(err))
+    },
   },
-
 
   mounted() {
     //this.products = this.products()
