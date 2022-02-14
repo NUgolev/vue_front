@@ -42,14 +42,14 @@
         horizontal
       >
         <a href="/" class="v-btn">
-          <span>Главная</span>
+          <span class="pt-10 subtitle-1 font-weight-bold pa-9">Главная</span>
         </a>
         <v-menu open-on-hover offset-y>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on"
                    @click=""
                    href="/shop">
-              <span>Каталог</span>
+              <span class="pt-10 subtitle-1 font-weight-bold pa-9" >Каталог</span>
             </v-btn>
           </template>
           <v-card

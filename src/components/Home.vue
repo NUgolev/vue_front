@@ -2,7 +2,7 @@
   <div>
     <v-carousel hide-delimiters>
       <v-carousel-item
-        :src="require('../assets/img/home/tormoza.jpg')"
+        :src="'http://localhost:8000/static/home/tormoza.jpg'"
       >
         <v-row
           class="fill-height"
@@ -14,7 +14,7 @@
 
       </v-carousel-item>
       <v-carousel-item
-        :src="require('../assets/img/home/Shini.jpg')"
+        :src="'http://localhost:8000/static/home/Shini.jpg'"
       >
         <v-row
           class="fill-height"
@@ -25,7 +25,7 @@
         </v-row>
       </v-carousel-item>
       <v-carousel-item
-        :src="require('../assets/img/home/kuzovnye-detali.jpg')"
+        :src="'http://localhost:8000/static/home/kuzovnye-detali.jpg'"
       >
         <v-row
           class="fill-height"
@@ -36,7 +36,7 @@
         </v-row>
       </v-carousel-item>
       <v-carousel-item
-        :src="require('../assets/img/home/Maslo.jpg')"
+        :src="'http://localhost:8000/static/home/Maslo.jpg'"
       >
         <v-row
           class="fill-height"
@@ -54,14 +54,14 @@
         <v-card>
 
           <v-img
-            :src="require('../assets/img/home/Maslo.jpg')"
+            :src="'http://localhost:8000/static/home/Maslo.jpg'"
             class="white--text align-center"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             height="400px"
           >
            <h1 class="text-center font-size">Моторные масла</h1>
             <div class="text-center">
-              <v-btn  href="/shop" class="white--text " outlined>Перейти в раздел</v-btn>
+              <v-btn  href="shop/?category=1" class="white--text " outlined>Перейти в раздел</v-btn>
             </div>
           </v-img>
         </v-card>
@@ -71,7 +71,7 @@
       >
         <v-card>
           <v-img
-            :src="require('../assets/img/home/Shini.jpg')"
+            :src="'http://localhost:8000/static/home/Shini.jpg'"
             class="white--text align-center"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             height="400px"
@@ -90,14 +90,14 @@
       >
         <v-card outlined>
           <v-img
-            :src="require('../assets/img/home/amortizatory.jpg')"
+            :src="'http://localhost:8000/static/home/amortizatory.jpg'"
             class="white--text align-center"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             height="300px"
           >
             <h1 class="text-center font-size">Амортизаторы</h1>
             <div class="text-center mt-2">
-              <v-btn class="white--text caption"  href="/shop" text>Перейти в раздел<v-icon class="white--text caption">mdi-arrow-right</v-icon></v-btn>
+              <v-btn class="white--text caption"  href="shop/?category=6" text>Перейти в раздел<v-icon class="white--text caption">mdi-arrow-right</v-icon></v-btn>
             </div>
           </v-img>
         </v-card>
@@ -107,7 +107,7 @@
       >
         <v-card outlined>
           <v-img
-            :src="require('../assets/img/home/kuzovnye-detali.jpg')"
+            :src="'http://localhost:8000/static/home/kuzovnye-detali.jpg'"
             class="white--text align-center"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             height="300px"
@@ -124,7 +124,7 @@
       >
         <v-card outlined>
           <v-img
-            :src="require('../assets/img/home/tormoza.jpg')"
+            :src="'http://localhost:8000/static/home/tormoza.jpg'"
             class="white--text align-center"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             height="300px"
@@ -158,27 +158,7 @@
     export default {
         data () {
             return {
-                items: [
-                    { title: 'Click Me' },
-                    { title: 'Click Me' },
-                    { title: 'Click Me' },
-                    { title: 'Click Me 2' },
-                ],
                 activeBtn: 1,
-                colors: [
-                    'indigo',
-                    'warning',
-                    'pink darken-2',
-                    'red lighten-1',
-                    'deep-purple accent-4',
-                ],
-                slides: [
-                    'First',
-                    'Second',
-                    'Third',
-                    'Fourth',
-                    'Fifth',
-                ],
             }
         },
     }

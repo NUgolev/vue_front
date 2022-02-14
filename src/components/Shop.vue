@@ -206,11 +206,11 @@ export default {
     category: null,
     filters: [{
       "id": "0", "name": "Вязкость по SAE",
-      "value": [ "0w30", "5w40", "10w30", "0w40"]},
-      {
+      "value": [ "0w30", "5w40", "10w30", "0w40","5w30"]},
+      /*{
       "id": "1", "name": "Вязкость по SASAE",
       "value": ["1", "2", "3", "4"]
-    }],
+    }*/],
     f_checked:[]
   }),
 
