@@ -74,14 +74,15 @@
               </v-card-title>
               <v-container>
                 <v-select
-                  :items="filter.value"
+                  :items="filter.values"
                   chips
-                  :label="filter.value.name"
+                  :label="filter.values.name"
                   multiple
                   outlined
                   style="margin-bottom: -30px;"
                   dense
-                  v-model.lazy="f_checked[id]"
+                  v-model.lazy="enabled_filters[id]"
+                  @change="getProducts()">
                 ></v-select>
               </v-container>
               <v-divider/>
@@ -204,14 +205,21 @@ export default {
     search: [],
     cur_prod_t: 0,
     category: null,
-    filters: [{
-      "id": "0", "name": "Вязкость по SAE",
-      "value": [ "0w30", "5w40", "10w30", "0w40","5w30"]},
-      /*{
-      "id": "1", "name": "Вязкость по SASAE",
-      "value": ["1", "2", "3", "4"]
-    }*/],
-    f_checked:[]
+    filters: [
+     /* {
+        "id": "0",
+        "name": "Вязкость по SAE",
+        "values": [
+          "0w30",
+          "5w40",
+          "10w30",
+          "0w40",
+          "5w30"
+        ]
+      },*/
+    ],
+    enabled_filters: [],
+    errors: []
   }),
 
   methods: {
@@ -244,7 +252,7 @@ export default {
     onOpen: function (items) {
       this.openIds = items
     },
-    getProducts: function () {
+    getProducts: function (filter_set = null) {
       var url = 'http://127.0.0.1:8000/' +
         'api/product/?price_gte=' + this.minPrice +
         '&price_lte=' + this.maxPrice +
@@ -258,9 +266,29 @@ export default {
       if (this.$route.query.search) {
         url += '&search=' + this.$route.query.search
       }
+      for (let i = 0; i < this.enabled_filters.length; i++) {
+          url += '&filter=' + this.enabled_filters[i]
+      }
       axios.get(url).then(response => {
-        // JSON responses are automatically parsed.
-        this.products = response.data // получение списка продуктов
+        // Products - сохранение продуктов из запроса в обьект
+        this.products = response.data
+        // Filters - сбор всех фильтров с обьекта продуктов
+        for (let i = 0; i < this.products.length; i++) {
+          for (let j = 0; j < this.products[i].filter_values.length; j++) {
+            let filter_name = this.products[i].filter_values[j].name
+            let filter_value = this.products[i].filter_values[j].value
+            let filter_idx = this.filters.findIndex(x => x.name === filter_name)
+            if (filter_idx >= 0) {
+              this.filters[filter_idx]["values"].push(filter_value)
+            } else {
+              this.filters.push({
+                "name": filter_name,
+                "values": [filter_value]
+              })
+            }
+          }
+        }
+        // Pagination
         this.pages = Math.floor(this.products.length / 12) + 1 * (this.products.length % 12 > 0)
         this.page = 1
         this.cur_prod_f = (12 * this.page - 12) + 1

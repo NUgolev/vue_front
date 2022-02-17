@@ -10,7 +10,7 @@
         <div class="col-md-7 col-sm-7 col-xs-12">
           <div class="pl-6">
             <p class="display-1 mb-0">{{ product.name }}</p>
-
+          <div> <v-divider/>{{product.category}}{{product}}{{product.filter_values}}</div>
             <p class="display-0 mb-0">Цена:</p>
             <p class="display-1 mb-0"> {{ product.price }} </p>
             <p class="title">Количество</p>
