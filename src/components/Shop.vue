@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-container>
-      <div class="row">
+      <div class="row" >
         <div
           class="col-md-3 col-sm-3 col-xs-12"
         >
@@ -81,7 +81,7 @@
                   outlined
                   style="margin-bottom: -30px;"
                   dense
-                  v-model.lazy="enabled_filters[id]"
+                  v-model.lazy="enabled_filters[filter.name]"
                   @change="getProducts()">
                 ></v-select>
               </v-container>
@@ -90,7 +90,7 @@
           </v-card>
         </div>
 
-        <div class="col-md-9 col-sm-9 col-xs-12">
+        <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 ">
           <v-row dense>
             <v-col cols="12" sm="8" class="pl-6 pt-6">
               <div>
@@ -99,12 +99,9 @@
               </div>
             </v-col>
             <v-col cols="12" sm="4">
-
             </v-col>
           </v-row>
-
-          <v-divider></v-divider>
-
+          <v-divider/>
           <div class="row text-center">
             <div class="col-md-3 col-sm-6 col-xs-12"
                  v-for="(product,id) in products">
@@ -143,9 +140,9 @@
                   </v-hover>
                 </div>
               </div>
-
             </div>
           </div>
+          <v-divider/>
           <div class="text-center mt-10">
             <v-pagination
               v-model="page"
@@ -205,20 +202,8 @@ export default {
     search: [],
     cur_prod_t: 0,
     category: null,
-    filters: [
-     /* {
-        "id": "0",
-        "name": "Вязкость по SAE",
-        "values": [
-          "0w30",
-          "5w40",
-          "10w30",
-          "0w40",
-          "5w30"
-        ]
-      },*/
-    ],
-    enabled_filters: [],
+    filters: [],
+    enabled_filters: {},
     errors: []
   }),
 
@@ -252,7 +237,7 @@ export default {
     onOpen: function (items) {
       this.openIds = items
     },
-    getProducts: function (filter_set = null) {
+    getProducts: function () {
       var url = 'http://127.0.0.1:8000/' +
         'api/product/?price_gte=' + this.minPrice +
         '&price_lte=' + this.maxPrice +
@@ -266,8 +251,8 @@ export default {
       if (this.$route.query.search) {
         url += '&search=' + this.$route.query.search
       }
-      for (let i = 0; i < this.enabled_filters.length; i++) {
-          url += '&filter=' + this.enabled_filters[i]
+      if (Object.keys(this.enabled_filters).length > 0) {
+        url += '&filter=' + JSON.stringify(this.enabled_filters)
       }
       axios.get(url).then(response => {
         // Products - сохранение продуктов из запроса в обьект
